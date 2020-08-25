@@ -48,7 +48,7 @@ docker run -d \
 
 ArcGIS Server can then be configured at these URLs:
  * https://citygeo-geocoder.phila.city:6443/arcgis/manager/
- * https://<ip-address>:6443/arcgis/manager/
+ * https://<ip_address>:6443/arcgis/manager/
 
 ArcGIS Server and administered here:
  * https://citygeo-geocoder.phila.city:6443/arcgis/admin
