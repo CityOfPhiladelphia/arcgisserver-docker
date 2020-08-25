@@ -11,23 +11,23 @@ Before running the docker build, you'll need:
 
 2. ESRI license file in the form of a .prvc file, renamed to 'arcgisserver.prvc'
   * You can get that here: https://my.esri.com/#/authorizations
-  * For 10.8 you'll want the one called 'ArcGIS GIS Server Advanced'
+  * For 10.8 you'll want to go through the authorization process for 'ArcGIS Enterprise', and for license type choose 'ArcGIS Server', after that, you'll need to decide what level of arcgis server you need, we usually choose 'Advanced' over 'Basic'.
 
-3. Choose a hostname that you'll have a DNS record setup for (not necessary to have it during build)
+3. Choose a hostname that you'll have a DNS record setup for (not necessary to have it during build).
 
 ## Building and Running
 
 For the build command you'll be doing some special things.
  * --squash: to squash the docker image into a single layer, this should prevent the setup files that get removed at the end from being included in the total image size. ArcGIS Server is not light, and the image turns out to be around 11 GB in size... don't want it any larger.
  * --add-host: Pass your chosen hostname here, mapped to 127.0.0.1 so the arcgisserver install picks up on it.
- * --build-arg: You'll also pass the hostname here so we can force the system to use the hostname we want.
+ * --build-arg: You'll also pass the hostname here so we can force arcgisserver to use the hostname we want.
 
 For the below command we're using citygeo-geocoder.phila.city as an example hostname, replace with your own.
 
 ```
 docker build --squash \
     --add-host citygeo-geocoder.phila.city:127.0.0.1 \
-    --build-arg citygeo-geocoder.phila.city \
+    --build-arg hostname=citygeo-geocoder.phila.city \
     -t arcgisserver .
 ```
 
