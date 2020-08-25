@@ -36,13 +36,21 @@ Consult with our internal proxy article on how to deal with the web proxy and Do
 https://docs.docker.com/network/proxy/
 
 ### Running
-Finally to run the docker image in a container, you'll use this command.
+First on the host machine create two directories for storing config and other arcgis data. If you lose the container somehow, you should be able to recreate it with these folders:
+```
+mkdir -p ~/arcgis-docker/config-store
+mkdir -p ~/arcgis-docker/arcgis-directories
+```
+
+Then to run the container:
 ```
 docker run -d \
     --name arcgisserver \
-    --hostname citygeo-gecoder.phila.city \    
+    --hostname citygeo-gecoder.phila.city \
     -p 6080:6080 \
     -p 6443:6443 \
+    -v ~/arcgis-docker/config-store:/arcgis/server/usr/config-store \
+	-v ~/arcgis-docker/arcgis-directories:/arcgis/server/usr/directories \
     arcgisserver:latest
 ```
 
