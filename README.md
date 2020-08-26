@@ -1,6 +1,8 @@
 # Dockerfile for building and hosting ArcGIS Server on Linux
 ----
 
+This Dockerfile was developed using Docker version 19.03.2, build 6a30dfc, with the experimental flag enabled.
+
 ## Setup
 
 Before running the docker build, you'll need:
@@ -18,7 +20,8 @@ Before running the docker build, you'll need:
 ## Building and Running
 
 For the build command you'll be doing some special things.
- * --squash: to squash the docker image into a single layer, this should prevent the setup files that get removed at the end from being included in the total image size. ArcGIS Server is not light, and the image turns out to be around 11 GB in size... don't want it any larger.
+ * --squash: to squash the docker image into a single layer, this should prevent the setup files that get removed at the end from being included in the total image size. ArcGIS Server is not light, and the image turns out to be around 11 GB in size with the setup file layer... don't want it any larger.
+    --squash requires experimental features of Docker enabled, read: https://github.com/docker/cli/blob/master/experimental/README.md
  * --add-host: Pass your chosen hostname here, mapped to 127.0.0.1 so the arcgisserver install picks up on it.
  * --build-arg: You'll also pass the hostname here so we can force arcgisserver to use the hostname we want.
 
