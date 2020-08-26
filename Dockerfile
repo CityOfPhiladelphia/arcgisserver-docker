@@ -3,14 +3,6 @@ FROM centos:7
 Maintainer Roland
 LABEL arcgisserver for Citygeo
 
-# The value below is a default if hostname is not declared through the --build-arg flag.
-ARG hostname=arcgis-server.default.com
-# Because of limitations with the hosts file in docker, we have to force
-# arcgisserver to use the hostname we want by replacing the hostname binary
-RUN mv /usr/bin/hostname{,.bkp}; \
-  echo "echo ${hostname}" > /usr/bin/hostname; \
-  chmod +x /usr/bin/hostname
-
 COPY ./* /tmp/
 
 # Force yum to use ipv4, ipv6 as always causes problems
@@ -18,6 +10,13 @@ RUN echo "ip_resolve=4" >> /etc/yum.conf
 
 RUN yum install -y net-tools vim tar hostname gettext
 
+# The value below is a default if hostname is not declared through the --build-arg flag.
+ARG hostname=arcgis-server.default.com
+# Because of limitations with the hosts file in docker, we have to force
+# arcgisserver to use the hostname we want by replacing the hostname binary
+RUN mv /usr/bin/hostname{,.bkp}; \
+  echo "echo ${hostname}" > /usr/bin/hostname; \
+  chmod +x /usr/bin/hostname
 
 # Arcgisserver user and directory dependencies.
 RUN groupadd arcgis && \
