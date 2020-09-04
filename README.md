@@ -49,7 +49,7 @@ Then to run the container:
 ```
 docker run -d \
     --name arcgisserver \
-    --hostname citygeo-gecoder.phila.city \
+    --hostname citygeo-geocoder.phila.city \
     -p 6080:6080 \
     -p 6443:6443 \
     -v ~/arcgis-docker/config-store:/arcgis/server/usr/config-store \
