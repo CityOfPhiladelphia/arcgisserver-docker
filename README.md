@@ -64,3 +64,10 @@ ArcGIS Server can then be configured at these URLs:
 ArcGIS Server and administered here:
  * https://citygeo-geocoder.phila.city:6443/arcgis/admin
  * https://<ip_address>:6443/arcgis/admin
+
+## Reverse proxy with Nginx
+If you don't want users to have to enter in the port into the URL for a cleaner experience, then you can install a webserver to act as a front-end that proxies to arcgisserver as a backend.
+
+ESRI offers their web-adaptor product to do this but it's a clunky fix using java and tomcat for what should be a simple solution. Nginx serves this role well.
+
+An example vhost configuration can be found in the file nginx-vhost.conf
