@@ -65,6 +65,14 @@ ArcGIS Server and administered here:
  * https://citygeo-geocoder.phila.city:6443/arcgis/admin
  * https://<ip_address>:6443/arcgis/admin
 
+## Migrating
+
+If at some point you need to migrate your arcgisserver docker container to a different machine, follow these steps.
+
+A freshly run ArcGIS server container does NOT recognize dragged and dropped config-store and arcgis-directories folders and run off them, when browsing to the manager URL it will act like the server is not joined and as if its' a fresh install. Attempting to create a new site will also fail until you perform the next step.
+
+To get around that, you can simply delete ".site" folders that exist in various directories within the two volume-mounted folders. These appear to identify the install, and deleting them allows a new site creation to work. After that, you should see your old services. 
+
 ## Reverse proxy with Nginx
 If you don't want users to have to enter in the port into the URL for a cleaner experience, then you can install a webserver to act as a front-end that proxies to arcgisserver as a backend.
 
