@@ -1,22 +1,25 @@
-FROM centos:7
+FROM debian:10-slim
 
 Maintainer Roland
 LABEL arcgisserver for Citygeo
 
 COPY ./* /tmp/
 
-# Force yum to use ipv4, ipv6 as always causes problems
-RUN echo "ip_resolve=4" >> /etc/yum.conf
+# Force apt-get to use ipv4, ipv6 as always causes problems
+RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
-RUN yum install -y net-tools vim tar hostname gettext
+RUN apt-get update -y && \
+    apt-get install apt-utils -y && \
+    apt-get install -y iproute2 vim tar hostname gettext && \
+    apt-get clean
 
 # The value below is a default if hostname is not declared through the --build-arg flag.
 ARG hostname=arcgis-server.default.com
 # Because of limitations with the hosts file in docker, we have to force
 # arcgisserver to use the hostname we want by replacing the hostname binary
-RUN mv /usr/bin/hostname{,.bkp}; \
-  echo "echo ${hostname}" > /usr/bin/hostname; \
-  chmod +x /usr/bin/hostname
+RUN mv /bin/hostname /bin/hostname.bkp; \
+  echo "echo ${hostname}" > /bin/hostname; \
+  chmod +x /bin/hostname
 
 # Arcgisserver user and directory dependencies.
 RUN groupadd arcgis && \
