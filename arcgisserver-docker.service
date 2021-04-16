@@ -1,0 +1,22 @@
+[Unit]
+Description=arcgisserver container
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=no
+ExecStartPre=-/usr/bin/docker stop arcgisserver
+#ExecStartPre=-/usr/bin/docker rm arcgisserver
+ExecStart=/usr/bin/docker run -d \
+    --name arcgisserver \
+    --hostname citygeo-geocoder.phila.city \
+    -p 6080:6080 \
+    -p 6443:6443 \
+    -v /root/arcgis-docker/config-store:/arcgis/server/usr/config-store \
+    -v /root/arcgis-docker/arcgis-directories:/arcgis/server/usr/directories \
+    arcgisserver:latest
+ExecStop=/usr/bin/docker stop arcgisserver
+
+[Install]
+WantedBy=multi-user.target
