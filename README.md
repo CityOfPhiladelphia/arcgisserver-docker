@@ -10,6 +10,7 @@ Before running the docker build, you'll need:
 1. Installation package in the form of a .tar.gz, renamed to 'arcgisserver.tar.gz'
   * You can get that under the downloads section: https://my.esri.com/#/downloads
   * The package will come as a bundle with 'ArcGIS Enterprise (Linux)', 10.8 version
+  * IMPORTANT! rename the file arcgisserver.tar.gz as the Dockerfile expects it.
 
 2. ESRI license file in the form of a .prvc file, renamed to 'arcgisserver.prvc'
   * You can get that here: https://my.esri.com/#/authorizations

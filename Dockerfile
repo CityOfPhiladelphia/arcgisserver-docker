@@ -3,15 +3,24 @@ FROM debian:10-slim
 Maintainer Roland
 LABEL arcgisserver for Citygeo
 
-COPY ./* /tmp/
+# These are required files.
+ADD ./arcgisserver.tar.gz /tmp/arcgisserver/
+COPY ./arcgisserver.prvc /tmp/arcgisserver.prvc
 
 # Force apt-get to use ipv4, ipv6 as always causes problems
 RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
 RUN apt-get update -y && \
     apt-get install apt-utils -y && \
-    apt-get install -y iproute2 vim tar hostname gettext && \
+    apt-get install -y iproute2 vim tar hostname gettext locales && \
     apt-get clean
+
+# Arcgisserver requires a properly set locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
+    locale-gen
+ENV LANG en_US.UTF-8  
+ENV LANGUAGE en_US:en  
+ENV LC_ALL en_US.UTF-8 
 
 # The value below is a default if hostname is not declared through the --build-arg flag.
 ARG hostname=arcgis-server.default.com
@@ -35,10 +44,9 @@ RUN echo -e "arcgis soft nofile 65535\narcgis hard nofile 65535\narcgis soft npr
 # Expose all these ports
 EXPOSE 1098 4000 4001 4002 4003 4004 6006 6080 6099 6443
 
+# The actual install.
 USER arcgis
-# Unpackage arcgisserver.tar.gz and install it.
-RUN mkdir /tmp/arcgisserver && tar xvzf /tmp/arcgisserver.tar.gz -C /tmp/arcgisserver && \
-    /tmp/arcgisserver/Setup -m silent -l yes -a /tmp/arcgisserver.prvc -d /
+RUN /tmp/arcgisserver/ArcGISServer/Setup -m silent -l yes -a /tmp/arcgisserver.prvc -d /
 
 # If your license doesn't work, the installer won't tell you.
 # Manually attempt to authorize and then check if it worked, fail if it doesn't.
