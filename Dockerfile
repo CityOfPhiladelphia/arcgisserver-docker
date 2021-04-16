@@ -10,9 +10,11 @@ COPY ./arcgisserver.prvc /tmp/arcgisserver.prvc
 # Force apt-get to use ipv4, ipv6 as always causes problems
 RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
 
+# procps gives us pgrep which the arcig server start script requires
+# /arcgis/server/startserver.sh
 RUN apt-get update -y && \
     apt-get install apt-utils -y && \
-    apt-get install -y iproute2 vim tar hostname gettext locales && \
+    apt-get install -y iproute2 procps vim tar hostname gettext locales && \
     apt-get clean
 
 # Arcgisserver requires a properly set locale

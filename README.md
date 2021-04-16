@@ -74,6 +74,10 @@ A freshly run ArcGIS server container does NOT recognize dragged and dropped con
 
 To get around that, you can simply delete ".site" folders that exist in various directories within the two volume-mounted folders. These appear to identify the install, and deleting them allows a new site creation to work. After that, you should see your old services. 
 
+Here's a simple command to run in the top directory above the mounted folders to remove all the .site folders. Careful to run this command ONLY in the mounted folder!!
+ 
+```find . -name '\.site' -exec rm -irf '{}' \;```
+
 ## Reverse proxy with Nginx
 If you don't want users to have to enter in the port into the URL for a cleaner experience, then you can install a webserver to act as a front-end that proxies to arcgisserver as a backend.
 
