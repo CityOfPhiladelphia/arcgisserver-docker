@@ -1,3 +1,2 @@
-secrets
-arcgisserver.tar.gz
-arcgisserver.prvc
+*.prvc
+*.tar.gz

@@ -1,63 +1,54 @@
-FROM debian:10-slim
+FROM ubuntu:20.04
 
-Maintainer Roland
 LABEL arcgisserver for Citygeo
 
-# These are required files.
-ADD ./arcgisserver.tar.gz /tmp/arcgisserver/
-COPY ./arcgisserver.prvc /tmp/arcgisserver.prvc
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Force apt-get to use ipv4, ipv6 as always causes problems
-RUN echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
+# Install required system dependencies for ArcGIS Server
+RUN apt-get update && apt-get install -y \
+    net-tools \
+    gettext \
+    locales \
+    libfontconfig1 \
+    libgl1-mesa-glx \
+    libxi6 \
+    libxrender1 \
+    libxtst6 \
+    xvfb \
+    tar \
+    gzip \
+    && rm -rf /var/lib/apt/lists/*
 
-# procps gives us pgrep which the arcig server start script requires
-# /arcgis/server/startserver.sh
-RUN apt-get update -y && \
-    apt-get install apt-utils -y && \
-    apt-get install -y iproute2 procps vim tar hostname gettext locales && \
-    apt-get clean
+RUN locale-gen en_US.UTF-8
+ENV LANG=en_US.UTF-8 \
+    LANGUAGE=en_US:en \
+    LC_ALL=en_US.UTF-8
 
-# Arcgisserver requires a properly set locale
-RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && \
-    locale-gen
-ENV LANG en_US.UTF-8  
-ENV LANGUAGE en_US:en  
-ENV LC_ALL en_US.UTF-8 
+RUN groupadd -g 1000 arcgis && \
+    useradd -u 1000 -g arcgis -m -d /home/arcgis arcgis
 
-# The value below is a default if hostname is not declared through the --build-arg flag.
-ARG hostname=arcgis-server.default.com
-# Because of limitations with the hosts file in docker, we have to force
-# arcgisserver to use the hostname we want by replacing the hostname binary
-RUN mv /bin/hostname /bin/hostname.bkp; \
-  echo "echo ${hostname}" > /bin/hostname; \
-  chmod +x /bin/hostname
-
-# Arcgisserver user and directory dependencies.
-RUN groupadd arcgis && \
-    useradd -m -r arcgis -g arcgis && \
-    mkdir -p /arcgis/server && \
-    chown -R arcgis:arcgis /arcgis && \
-    chown -R arcgis:arcgis /tmp && \
-    chmod -R 755 /arcgis
+COPY --chown=arcgis:arcgis ArcGISGISServerAdvanced_ArcGISServer_1614027.prvc /home/arcgis/server115.prvc
 
 # File limits because Java is hungry
 RUN echo -e "arcgis soft nofile 65535\narcgis hard nofile 65535\narcgis soft nproc 25059\narcgis hard nproc 25059" >> /etc/security/limits.conf
 
-# Expose all these ports
-EXPOSE 1098 4000 4001 4002 4003 4004 6006 6080 6099 6443
 
-# The actual install.
 USER arcgis
-RUN /tmp/arcgisserver/ArcGISServer/Setup -m silent -l yes -a /tmp/arcgisserver.prvc -d /
+WORKDIR /home/arcgis
 
-# If your license doesn't work, the installer won't tell you.
-# Manually attempt to authorize and then check if it worked, fail if it doesn't.
-RUN /arcgis/server/tools/authorizeSoftware -f /tmp/arcgisserver.prvc && \
-    /arcgis/server/tools/authorizeSoftware -s | grep "Not Authorized." && exit 1 || echo 0
+# Bind-mount the tarball directly from your host context. 
+# It never becomes a Docker layer, and we clean up the extracted files in the same RUN command.
+RUN --mount=type=bind,source=ArcGIS_Server_Linux_115_195440.tar.gz,target=/tmp/arcgisserver.tar.gz \
+    mkdir -p /tmp/arcgis && \
+    tar -xvf /tmp/arcgisserver.tar.gz -C /tmp/arcgis/ && \
+    /tmp/arcgis/ArcGISServer/Setup -m silent -l yes -a /home/arcgis/server115.prvc && \
+    rm -rf /tmp/arcgis
 
-# Remove setup files
-RUN rm -rf /tmp/arcgisserver.tar.gz; \
-    rm -rf /tmp/arcgisserver
+# Copy the startup script into the container
+COPY --chown=arcgis:arcgis entrypoint.sh /home/arcgis/entrypoint.sh
 
-# Run arcgisserver
-CMD /arcgis/server/startserver.sh && tail -f /arcgis/server/framework/etc/service_error.log
+# Ensure the script is executable
+RUN chmod +x /home/arcgis/entrypoint.sh
+
+#CMD ["/bin/bash", "-c", "/home/arcgis/server/startserver.sh && sleep 15 && tail -f /home/arcgis/logs.txt"]
+CMD ["/home/arcgis/entrypoint.sh"]
