@@ -1,7 +1,9 @@
 # Dockerfile for building and hosting ArcGIS Server on Linux
 ----
 
-This Dockerfile was developed using Docker version 19.03.2, build 6a30dfc, with the experimental flag enabled.
+Note: This repository is EXPERIMENTAL! ESRI has not designed ArcGIS server in a stateful way so you can't really run it in containers like "cattle". It always requires a shared network folder if you want to run more than one, so this docker method has limited utility.
+
+Run at your own risk.
 
 ## Setup
 
