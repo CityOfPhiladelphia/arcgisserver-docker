@@ -6,6 +6,8 @@ PASSWORD='apassword'
 # subsequent instances will need a "primary" instance hostname to join against and create the cluster/site.
 HOSTNAME='arcgis-primary'
 EFSDNS='<some-efs-dns-name>'
+# Only set this if you're joining an instance
+PRIMARY_MACHINE_URL='<primary_ip>'
 
 sudo yum install -y nfs-utils
 
@@ -38,6 +40,7 @@ docker run -d \
   -p 6080:6080 \
   -e ARCGIS_ADMIN_USER=siteadmin \
   -e ARCGIS_ADMIN_PASS=$PASSWORD \
+  -e PRIMARY_MACHINE_URL=$PRIMARY_MACHINE_URL \
   -v arcgis-directories:/home/arcgis/server/usr/directories \
   -v arcgis-config-store:/home/arcgis/server/usr/config-store \
   ags:latest

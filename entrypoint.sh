@@ -24,7 +24,7 @@ elif [ ! -f "$CONFIG_STORE/machines/${HOSTNAME}.json" ]; then
     if [ -n "$PRIMARY_MACHINE_URL" ]; then
         echo "--> Machine ${HOSTNAME} is not registered. Joining site..."
         curl -s -k -X POST https://localhost:6443/arcgis/admin/joinSite \
-            -d "adminURL=${PRIMARY_MACHINE_URL}" \
+            -d "adminURL=https://${PRIMARY_MACHINE_URL}:6443" \
             -d "username=${ARCGIS_ADMIN_USER}" \
             -d "password=${ARCGIS_ADMIN_PASS}" \
             -d "f=json"
@@ -48,7 +48,7 @@ while true; do
 
     # --- Ghost Node Cleanup ---
     if [ $((CURRENT_TIME - LAST_CLEANUP)) -ge $CLEANUP_INTERVAL ] && [ -n "$PRIMARY_MACHINE_URL" ]; then
-        
+
         TOKEN=$(curl -s -k -X POST "${PRIMARY_MACHINE_URL}/generateToken" \
             -d "username=${ARCGIS_ADMIN_USER}" \
             -d "password=${ARCGIS_ADMIN_PASS}" \
@@ -63,7 +63,7 @@ while true; do
 
             for MACHINE in $MACHINES; do
                 if [ "$MACHINE" != "arcgis-primary" ] && [ "$MACHINE" != "$HOSTNAME" ]; then
-                    
+
                     STATUS=$(curl -s -k -X POST "${PRIMARY_MACHINE_URL}/machines/${MACHINE}/status" \
                         -d "token=${TOKEN}" \
                         -d "f=json" | sed -n 's/.*"realTimeState":"\([^"]*\)".*/\1/p')
@@ -90,6 +90,7 @@ while true; do
         tail -f "$CURRENT_LOG" &
         TAIL_PID=$!
     fi
-    
-    sleep 10
+
+    # much longer sleep because a join takes like 5 minutes
+    sleep 1800
 done
