@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-PASSWORD='apassword'
-# ArcGIS relies on a consistent hostname for clustering.
-# subsequent instances will need a "primary" instance hostname to join against and create the cluster/site.
-HOSTNAME='arcgis-primary'
-EFSDNS='<some-efs-dns-name>'
-# Only set this if you're joining an instance
-PRIMARY_MACHINE_URL='<primary_ip>'
+# Check if the .env file exists, then source it
+if [ -f .env ]; then
+    export $(cat .env | xargs)
+else
+    echo "Error: .env file missing" >&2
+    exit 1
+fi
 
 sudo yum install -y nfs-utils
 
